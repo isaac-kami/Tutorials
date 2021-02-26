@@ -1,0 +1,102 @@
+---
+
+- hosts: all
+  vars:
+    mypasswd: abc123
+
+  tasks:
+    - name: create dba user with all privileges
+      mysql_user:
+        login_user: root
+        login_password: ""
+        login_port: 3306
+        login_unix_socket: '/var/run/mysqld/mysqld.sock'
+        name: userlogin
+        password: "{{ mypasswd }}"
+        priv: '*.*:ALL,GRANT'
+        state: present
+      become: yes
+
+    - name: create replication user
+      mysql_user:
+        login_user: root
+        login_password: ""
+        login_port: 3306
+        login_unix_socket: '/var/run/mysqld/mysqld.sock'
+        name: replicauser
+        password: "{{ mypasswd }}"
+        priv: '*.*:REPLICATION SLAVE'
+        state: present
+      become: yes
+
+
+    - name: Check slave replication status.
+      mysql_replication:
+        mode: getslave
+        login_user: userlogin
+        login_password: "{{ mypasswd }}"
+      ignore_errors: true
+      register:  slave
+
+    - name: check master replication status
+      mysql_replication:
+        mode: getmaster
+        login_user: userlogin
+        login_password: "{{ mypasswd }}"
+      delegate_to: # you add here IP MySQL-0
+      register: master
+
+    - name: configure replication on the slave
+      mysql_replication:
+        mode: changemaster
+        login_user: userlogin
+        login_password: "{{ mypasswd }}"
+        master_host:  # you add here IP MySQL-1
+        master_user: replicauser
+        master_password: "{{ mypasswd }}"
+
+    
+    # master - Mysql1
+- hosts: MySQL-1
+
+  tasks:
+
+  - name: modify configuration file
+    lineinfile: dest=/etc/mysql/my.cnf regexp="^#server-id" line="server-id=1"
+    become: yes
+
+  - name: restart mysql
+    service:
+      name: mysql
+      state: restarted
+      enabled: true
+    become: yes
+
+  - name: reset master
+    command: /usr/bin/mysql -u root -pabc123 -e "RESET MASTER"
+    become: yes
+
+
+    
+    #slave - MySQL0
+
+- hosts: MySQL-0
+
+  tasks:
+
+  - name: modify configuration file
+    lineinfile: dest=/etc/mysql/my.cnf regexp="^#server-id" line="server-id=2"
+    become: yes
+
+  - name: restart mysql
+    service:
+      name: mysql
+      state: restarted
+      enabled: true
+    become: yes
+
+      ##- name: Start replication
+      #mysql_replication:
+      #  mode: startslave
+      #  login_user: userlogin
+      #  login_password: "{{ mypasswd }}"
