@@ -26,8 +26,7 @@ resource "null_resource" "MySQLRemote" {
 
    provisioner "local-exec" {
 
-     command = "ansible-playbook -i '${data.oci_core_vnic.MySQLVNICprimary[count.index].public_ip_address},' \
-     --private-key ${var.private_key_path} mysql.yml  -u ubuntu"
+     command = "ansible-playbook -i '${data.oci_core_vnic.MySQLVNICprimary[count.index].public_ip_address},' --private-key ${var.private_key_path} mysql.yml  -u ubuntu"
 
    }
 
