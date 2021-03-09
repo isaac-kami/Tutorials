@@ -17,3 +17,6 @@ This repository implements:
 
 <br>
 For more details, go to my blog: <a href="https://isaac-kami.tumblr.com/Tutorial1">Tutorial1</a>
+
+<br>
+<i>Make sure you add your details in provisioner.tf, instance.tf (path to public keys) and variables.tf (compartment OCID & path to private keys)</i>
