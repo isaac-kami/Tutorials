@@ -29,10 +29,12 @@ variable "portz" {
  default = [22,3306,33060]
 }
 
-## for instance, choosing Ubuntu 20.04 image
+##  Ubuntu 20.04 image
+## use link to add the corresponding OS to your region
+### https://docs.oracle.com/en-us/iaas/images/image/cb6a4ca4-47e9-40fa-bdb1-8ee41636c8a7/
 
 variable "instance_image" {
-  default =   "ocid1.image.oc1.eu-frankfurt-1.aaaaaaaa2fbceq23oofnxf4v23urfnfzui6n6det6ianoyvtmsbo5nzv2efq"
+  default =   ""
 }
 
 #variable "instance_name" {
@@ -43,8 +45,10 @@ variable "instance_shape" {
   default = "VM.Standard.E2.1"
 }
 
+## add here your AD
+## example: Aodz:EU-FRANKFURT-1-AD-1
 variable "available_dom" {
-  default = "Aodz:EU-FRANKFURT-1-AD-1"
+  default = ""
 }
 
 #change here with the location
